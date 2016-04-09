@@ -1,25 +1,22 @@
-NAME=md2pdf
+NAME=dbm
 VERSION=$(shell changelog release version)
 BUILD_DIR=build
-TEST_DIR=test
 
 YELLOW=\033[93m
 CYAN=\033[1m\033[96m
 CLEAR=\033[0m
 
-.PHONY: build test
+.PHONY: build
 
 all: clean test build
 
 deps:
 	@echo "$(YELLOW)Installing Go dependencies$(CLEAR)"
 	go get gopkg.in/yaml.v2
-	go get github.com/russross/blackfriday
 
 test:
 	@echo "$(YELLOW)Running test$(CLEAR)"
-	mkdir -p $(BUILD_DIR)
-	go run $(NAME).go -o $(BUILD_DIR)/example.pdf -i $(TEST_DIR) $(TEST_DIR)/example.md
+	go test ...
 
 build:
 	@echo "$(YELLOW)Building executable$(CLEAR)"
@@ -51,4 +48,3 @@ help:
 	@echo "$(CYAN)release$(CLEAR) Make a release"
 	@echo "$(CYAN)clean$(CLEAR)   Clean generated files"
 	@echo "$(CYAN)help$(CLEAR)    Print this help screen"
-
