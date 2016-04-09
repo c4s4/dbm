@@ -16,7 +16,7 @@ deps:
 
 test:
 	@echo "$(YELLOW)Running test$(CLEAR)"
-	go test ...
+	go test
 
 build:
 	@echo "$(YELLOW)Building executable$(CLEAR)"
