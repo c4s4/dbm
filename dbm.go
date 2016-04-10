@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -51,9 +52,13 @@ type Version []int
 
 func NewVersion(v string) (Version, error) {
 	version := []int{}
+	if v == "init" {
+		version = append(version, -1)
+		return version, nil
+	}
 	for _, s := range strings.Split(v, ".") {
 		i, err := strconv.Atoi(s)
-		if err != nil {
+		if err != nil || i < 0 {
 			return nil, fmt.Errorf("Error parsing version '%s'", v)
 		}
 		version = append(version, i)
@@ -89,6 +94,18 @@ func (v Version) String() string {
 // List of versions for sorting
 type Versions []Version
 
+func NewVersions(l []string) (Versions, error) {
+	versions := []Version{}
+	for _, s := range l {
+		v, err := NewVersion(s)
+		if err != nil {
+			return []Version{}, err
+		}
+		versions = append(versions, v)
+	}
+	return versions, nil
+}
+
 func (v Versions) Len() int {
 	return len(v)
 }
@@ -99,4 +116,49 @@ func (v Versions) Swap(i, j int) {
 
 func (v Versions) Less(i, j int) bool {
 	return v[i].CompareTo(v[j]) < 0
+}
+
+// print error and exit
+func printError(message string, err error) {
+	if err != nil {
+		fmt.Println(message+":", err.Error())
+		os.Exit(1)
+	}
+}
+
+func printAndExit(message string) {
+	fmt.Println(message)
+	os.Exit(1)
+}
+
+// List migration scripts to run
+func ListScripts(c *Configuration, v, p string) ([]os.FileInfo, error) {
+	//version, err := NewVersion(v)
+	//printError("Error parsing version", err)
+	if _, err := os.Stat(c.SqlDir); os.IsNotExist(err) {
+		printError("SQL directory not found", err)
+	}
+	if fi, _ := os.Stat(c.SqlDir); !fi.IsDir() {
+		printAndExit("SQL directory is not a directory")
+	}
+	files, err := ioutil.ReadDir(c.SqlDir)
+	printError("Error listing SQL directory", err)
+
+	return files, nil
+}
+
+// run database migration
+func run(configFile, versionString string) {
+	configuration, err := LoadConfiguration(configFile)
+	printError("Error loading configuration file", err)
+	scripts, err := ListScripts(configuration, versionString, "itg")
+	printError("Error listing migration scripts", err)
+	fmt.Printf("scripts: %#v\n", scripts)
+}
+
+// main: parse command line
+func main() {
+	configFile := ".dbm.yml"
+	versionString := os.Args[1]
+	run(configFile, versionString)
 }
