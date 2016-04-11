@@ -352,3 +352,9 @@ CREATE TABLE IF NOT EXISTS _scripts (
     REFERENCES _install(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Historique de passage des scripts';
 ```
+
+TODO
+----
+
+- Faire package Python
+- Portage sur Oracle
