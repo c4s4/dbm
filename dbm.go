@@ -83,18 +83,36 @@ func ListScripts(configuration *Configuration, platform, version string) []strin
 	return files
 }
 
+// check command line parameters
+func checkParameters(configuration Configuration, platform, version string) {
+	found := false
+	for _, p := range configuration.Platforms {
+		if p == platform {
+			found = true
+			break
+		}
+	}
+	if !found {
+		message := fmt.Sprintf("Platform '%s' is unknown, must be one of %s",
+			platform, strings.Join(configuration.Platforms, ", "))
+		printAndExit(message)
+	}
+}
+
 // run database migration
 func run(platform, version, config string, dryRun bool) {
 	configuration, err := LoadConfiguration(config)
+	checkParameters(*configuration, platform, version)
 	printAndExitIfError("Error loading configuration file", err)
 	scripts := ListScripts(configuration, platform, version)
 	printAndExitIfError("Error listing migration scripts", err)
 	if dryRun {
-		fmt.Println("Script to run for migration:")
+		fmt.Printf("Script to migrate platform '%s' to version '%s':\n",
+			platform, version)
 		for _, script := range scripts {
 			fmt.Println("- " + script)
 		}
-	} else {
+		os.Exit(0)
 	}
 }
 
@@ -104,7 +122,7 @@ func main() {
 	dryRun := flag.Bool("dry", false, "Dry run (print scripts for migration)")
 	flag.Parse()
 	if len(flag.Args()) < 2 {
-		fmt.Println("You must pass platform and version on command line")
+		printAndExit("You must pass platform and version on command line")
 	}
 	platform := flag.Args()[0]
 	version := flag.Args()[1]

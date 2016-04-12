@@ -1,18 +1,12 @@
 # platform list
-platforms:
-- itg
-- prp
-- prod
-# default platform
-default-platform: itg
+platforms: [itg, prp, prod]
 # platform where init is forbidden
-critical-platforms:
-- prod
+critical-platforms: [prod]
 # directory for SQL scripts (relative to this file)
 sql-dir: sql
 # charset of the database
 database-charset: utf8
-# Database configuration for environments
+# database configuration for environments
 database:
   itg:
     hostname: localhost

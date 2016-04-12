@@ -14,7 +14,6 @@ type DatabaseConfiguration struct {
 
 type Configuration struct {
 	Platforms         []string
-	DefaultPlatform   string   `yaml:"default-platform"`
 	CriticalPlatforms []string `yaml:"critical-platforms"`
 	SqlDir            string   `yaml:"sql-dir"`
 	DatabaseCharset   string   `yaml:"database-charset"`
