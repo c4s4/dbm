@@ -10,24 +10,24 @@ func TestNewVersion(t *testing.T) {
 	if err != nil {
 		t.Errorf("Got error parsing version '1.2.3': %s", err)
 	}
-	if len(v) != 3 {
-		t.Errorf("Bad version length: got %v instead of 3", len(v))
+	if len(v.Numbers) != 3 {
+		t.Errorf("Bad version length: got %v instead of 3", len(v.Numbers))
 	}
-	if v[0] != 1 || v[1] != 2 || v[2] != 3 {
+	if v.Numbers[0] != 1 || v.Numbers[1] != 2 || v.Numbers[2] != 3 {
 		t.Error("Bad error parsing")
 	}
 	v, err = NewVersion("1")
 	if err != nil {
 		t.Errorf("Got error parsing version '1': %s", err)
 	}
-	if len(v) != 1 {
-		t.Errorf("Bad version length: got %v instead of 1", len(v))
+	if len(v.Numbers) != 1 {
+		t.Errorf("Bad version length: got %v instead of 1", len(v.Numbers))
 	}
 	v, err = NewVersion("init")
 	if err != nil {
 		t.Error("Could not parse 'init' version")
 	}
-	if len(v) != 1 || v[0] != -1 {
+	if len(v.Numbers) != 1 || v.Numbers[0] != -1 {
 		t.Error("Bad 'init' version parsing")
 	}
 }
@@ -86,7 +86,7 @@ func TestVersionCompareTo(t *testing.T) {
 func TestVersionString(t *testing.T) {
 	s := "1.2.3"
 	v, _ := NewVersion(s)
-	if v.String() != s {
+	if v.Name != s {
 		t.Fail()
 	}
 }

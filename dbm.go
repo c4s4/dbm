@@ -45,7 +45,7 @@ func ListDirectories(c *Configuration, v string) ([]string, error) {
 	selected := []string{}
 	for _, v := range files {
 		if v.CompareTo(version) <= 0 {
-			selected = append(selected, v.String())
+			selected = append(selected, v.Name)
 		}
 	}
 	return selected, nil

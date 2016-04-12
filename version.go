@@ -6,76 +6,76 @@ import (
 	"strings"
 )
 
-// version as an array of integers
-type Version []int
+const (
+	INIT_NAME   = "init"
+	INIT_NUMBER = -1
+	SEPARATOR   = "."
+)
 
-func NewVersion(v string) (Version, error) {
-	version := []int{}
-	if v == "init" {
-		version = append(version, -1)
-		return version, nil
-	}
-	for _, s := range strings.Split(v, ".") {
-		i, err := strconv.Atoi(s)
-		if err != nil || i < 0 {
-			return nil, fmt.Errorf("Error parsing version '%s'", v)
-		}
-		version = append(version, i)
-	}
-	return version, nil
+// version as a name and an array of integers
+type Version struct {
+	Name    string
+	Numbers []int
 }
 
-func (v1 Version) CompareTo(v2 Version) int {
-	l := len(v1)
-	if len(v2) < l {
-		l = len(v2)
+func NewVersion(name string) (Version, error) {
+	if name == INIT_NAME {
+		return Version{
+			Name:    INIT_NAME,
+			Numbers: []int{INIT_NUMBER},
+		}, nil
 	}
-	for i := 0; i < l; i++ {
-		d := v1[i] - v2[i]
-		if d != 0 {
-			return d
+	numbers := []int{}
+	for _, number := range strings.Split(name, SEPARATOR) {
+		integer, err := strconv.Atoi(number)
+		if err != nil || integer < 0 {
+			return Version{}, fmt.Errorf("Error parsing version '%s'", number)
 		}
+		numbers = append(numbers, integer)
 	}
-	return len(v1) - len(v2)
+	return Version{
+		Numbers: numbers,
+		Name:    name,
+	}, nil
 }
 
-func (v Version) String() string {
-	if len(v) == 1 && v[0] == -1 {
-		return "init"
+func (version1 Version) CompareTo(version2 Version) int {
+	length := len(version1.Numbers)
+	if len(version2.Numbers) < length {
+		length = len(version2.Numbers)
 	}
-	s := ""
-	for _, i := range v {
-		if s != "" {
-			s += "."
+	for index := 0; index < length; index++ {
+		diff := version1.Numbers[index] - version2.Numbers[index]
+		if diff != 0 {
+			return diff
 		}
-		s += strconv.Itoa(i)
 	}
-	return s
+	return len(version1.Numbers) - len(version2.Numbers)
 }
 
 // List of versions for sorting
 type Versions []Version
 
-func NewVersions(l []string) (Versions, error) {
+func NewVersions(names []string) (Versions, error) {
 	versions := []Version{}
-	for _, s := range l {
-		v, err := NewVersion(s)
+	for _, name := range names {
+		version, err := NewVersion(name)
 		if err != nil {
 			return []Version{}, err
 		}
-		versions = append(versions, v)
+		versions = append(versions, version)
 	}
 	return versions, nil
 }
 
-func (v Versions) Len() int {
-	return len(v)
+func (versions Versions) Len() int {
+	return len(versions)
 }
 
-func (v Versions) Swap(i, j int) {
-	v[i], v[j] = v[j], v[i]
+func (versions Versions) Swap(i, j int) {
+	versions[i], versions[j] = versions[j], versions[i]
 }
 
-func (v Versions) Less(i, j int) bool {
-	return v[i].CompareTo(v[j]) < 0
+func (versions Versions) Less(i, j int) bool {
+	return versions[i].CompareTo(versions[j]) < 0
 }
