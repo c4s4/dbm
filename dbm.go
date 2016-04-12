@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -10,7 +11,7 @@ import (
 	"strings"
 )
 
-// print if error and exit
+// print message if error and exit
 func printAndExitIfError(message string, err error) {
 	if err != nil {
 		fmt.Println(message+":", err.Error())
@@ -18,13 +19,14 @@ func printAndExitIfError(message string, err error) {
 	}
 }
 
+// print message and exit
 func printAndExit(message string) {
 	fmt.Println(message)
 	os.Exit(1)
 }
 
 // list script directories to run
-func ListDirectories(c *Configuration, v string) ([]string, error) {
+func ListDirectories(c *Configuration, v string) []string {
 	if _, err := os.Stat(c.SqlDir); os.IsNotExist(err) {
 		printAndExitIfError("SQL directory not found", err)
 	}
@@ -48,11 +50,11 @@ func ListDirectories(c *Configuration, v string) ([]string, error) {
 			selected = append(selected, v.Name)
 		}
 	}
-	return selected, nil
+	return selected
 }
 
 // select files to run in a given version directory
-func ListScriptsForVersion(dir, version, platform string) ([]string, error) {
+func ListScriptsForVersion(dir, version, platform string) []string {
 	selected := []string{}
 	directory := path.Join(dir, version)
 	scripts, err := ioutil.ReadDir(directory)
@@ -64,37 +66,47 @@ func ListScriptsForVersion(dir, version, platform string) ([]string, error) {
 			selected = append(selected, script.Name())
 		}
 	}
-	return selected, nil
+	return selected
 }
 
 // List migration scripts to run
-func ListScripts(configuration *Configuration, platform, version string) ([]string, error) {
-	dirs, err := ListDirectories(configuration, version)
-	printAndExitIfError("Error listing SQL directories", err)
+func ListScripts(configuration *Configuration, platform, version string) []string {
+	dirs := ListDirectories(configuration, version)
 	files := []string{}
 	for _, dir := range dirs {
-		fs, err := ListScriptsForVersion(configuration.SqlDir, dir, platform)
-		printAndExitIfError("Error listing scripts for version", err)
-		for _, f := range fs {
-			files = append(files, path.Join(configuration.SqlDir, dir, f))
+		scripts := ListScriptsForVersion(configuration.SqlDir, dir, platform)
+		for _, script := range scripts {
+			file := path.Join(configuration.SqlDir, dir, script)
+			files = append(files, file)
 		}
 	}
-	return files, nil
+	return files
 }
 
 // run database migration
-func run(config, platform, version string) {
+func run(platform, version, config string, dryRun bool) {
 	configuration, err := LoadConfiguration(config)
 	printAndExitIfError("Error loading configuration file", err)
-	scripts, err := ListScripts(configuration, platform, version)
+	scripts := ListScripts(configuration, platform, version)
 	printAndExitIfError("Error listing migration scripts", err)
-	fmt.Printf("scripts: %#v\n", scripts)
+	if dryRun {
+		fmt.Println("Script to run for migration:")
+		for _, script := range scripts {
+			fmt.Println("- " + script)
+		}
+	} else {
+	}
 }
 
 // main: parse command line
 func main() {
-	config := ".dbm.yml"
-	platform := os.Args[1]
-	version := os.Args[2]
-	run(config, platform, version)
+	config := flag.String("config", ".dbm.yml", "DBmigration onfiguration file")
+	dryRun := flag.Bool("dry", false, "Dry run (print scripts for migration)")
+	flag.Parse()
+	if len(flag.Args()) < 2 {
+		fmt.Println("You must pass platform and version on command line")
+	}
+	platform := flag.Args()[0]
+	version := flag.Args()[1]
+	run(platform, version, *config, *dryRun)
 }
