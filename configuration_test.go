@@ -42,7 +42,6 @@ database:
 	if configuration.Platforms[0] != "itg" ||
 		configuration.Platforms[1] != "prp" ||
 		configuration.Platforms[2] != "prod" ||
-		configuration.DefaultPlatform != "itg" ||
 		len(configuration.CriticalPlatforms) != 1 ||
 		configuration.CriticalPlatforms[0] != "prod" ||
 		configuration.SqlDir != "sql" ||
