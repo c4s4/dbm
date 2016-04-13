@@ -100,7 +100,7 @@ func checkParameters(configuration Configuration, platform, version string) {
 }
 
 // run database migration
-func run(platform, version, config string, dryRun bool) {
+func run(platform, version, config string, dryRun, init, latest bool) {
 	configuration, err := LoadConfiguration(config)
 	checkParameters(*configuration, platform, version)
 	printAndExitIfError("Error loading configuration file", err)
@@ -119,12 +119,14 @@ func run(platform, version, config string, dryRun bool) {
 // main: parse command line
 func main() {
 	config := flag.String("config", ".dbm.yml", "DBmigration onfiguration file")
-	dryRun := flag.Bool("dry", false, "Dry run (print scripts for migration)")
+	dryRun := flag.Bool("dryrun", false, "Dry run (list script without running them)")
+	init := flag.Bool("init", false, "Initialize database. /!\\ CAUTION /!\\ This will ERASE all database!")
+	latest := flag.Bool("latest", false, "To migrate to the lastest database version")
 	flag.Parse()
 	if len(flag.Args()) < 2 {
 		printAndExit("You must pass platform and version on command line")
 	}
 	platform := flag.Args()[0]
 	version := flag.Args()[1]
-	run(platform, version, *config, *dryRun)
+	run(platform, version, *config, *dryRun, *init, *latest)
 }
