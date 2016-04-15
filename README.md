@@ -358,3 +358,4 @@ TODO
 
 - Faire package Python
 - Portage sur Oracle
+- Warning quand la version demandée est inférieure à la version actuelle
