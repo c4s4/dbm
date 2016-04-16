@@ -123,7 +123,7 @@ func main() {
 	init := flag.Bool("init", false, "Initialize database. /!\\ CAUTION /!\\ This will ERASE all database!")
 	latest := flag.Bool("latest", false, "To migrate to the lastest database version")
 	flag.Parse()
-	if len(flag.Args()) < 2 {
+	if len(flag.Args()) != 2 {
 		printAndExit("You must pass platform and version on command line")
 	}
 	platform := flag.Args()[0]
