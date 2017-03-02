@@ -4,3 +4,7 @@ extends: :go/simple-command.yml
 
 properties:
   NAME:      "dbm"
+  DEPENDENCIES:
+  - "github.com/mitchellh/gox"
+  - "gopkg.in/yaml.v2"
+
