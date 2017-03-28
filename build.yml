@@ -1,6 +1,6 @@
 name:    dbm
 doc:     Build dbm project
-extends: :go/simple-command.yml
+extends: :go:simple-command.yml
 
 properties:
   NAME:      "dbm"
